@@ -1,40 +1,80 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL || 'https://todo-app-in-mern.onrender.com';
+
 function App() {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchTodos();
   }, []);
 
   const fetchTodos = async () => {
-    const res = await axios.get('/api/todos');
-    setTodos(res.data);
+    try {
+      const res = await axios.get(`${API_URL}/api/todos`);
+      setTodos(res.data);
+      setError(null);
+    } catch (err) {
+      setError('Failed to fetch todos');
+      console.error('Error fetching todos:', err);
+    }
+  };
+
+  const fetchTodoById = async (id) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/todos/${id}`);
+      console.log('Fetched todo:', res.data);
+      setError(null);
+      return res.data;
+    } catch (err) {
+      setError(`Failed to fetch todo with ID ${id}`);
+      console.error('Error fetching todo:', err);
+    }
   };
 
   const addTodo = async (e) => {
     e.preventDefault();
-    if (!text) return;
-    await axios.post('/api/todos', { text });
-    setText('');
-    fetchTodos();
+    if (!text.trim()) return;
+    try {
+      await axios.post(`${API_URL}/api/todos`, { text });
+      setText('');
+      fetchTodos();
+      setError(null);
+    } catch (err) {
+      setError('Failed to add todo');
+      console.error('Error adding todo:', err);
+    }
   };
 
   const deleteTodo = async (id) => {
-    await axios.delete(`/api/todos/${id}`);
-    fetchTodos();
+    try {
+      await axios.delete(`${API_URL}/api/todos/${id}`);
+      fetchTodos();
+      setError(null);
+    } catch (err) {
+      setError('Failed to delete todo');
+      console.error('Error deleting todo:', err);
+    }
   };
 
   const toggleTodo = async (id) => {
-    await axios.put(`/api/todos/${id}`);
-    fetchTodos();
+    try {
+      await axios.put(`${API_URL}/api/todos/${id}`);
+      fetchTodos();
+      setError(null);
+    } catch (err) {
+      setError('Failed to update todo');
+      console.error('Error updating todo:', err);
+    }
   };
 
   return (
     <div className="max-w-md mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Todo App</h1>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={addTodo} className="mb-4">
         <input
           type="text"
@@ -56,12 +96,20 @@ function App() {
             >
               {todo.text}
             </span>
-            <button
-              onClick={() => deleteTodo(todo._id)}
-              className="bg-red-500 text-white p-1 rounded"
-            >
-              Delete
-            </button>
+            <div>
+              <button
+                onClick={() => fetchTodoById(todo._id)}
+                className="bg-green-500 text-white p-1 rounded mr-2"
+              >
+                View
+              </button>
+              <button
+                onClick={() => deleteTodo(todo._id)}
+                className="bg-red-500 text-white p-1 rounded"
+              >
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>
