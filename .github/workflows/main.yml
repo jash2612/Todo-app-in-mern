@@ -10,32 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4 # Updated to latest version for better compatibility
 
-    # Set up Node.js environment
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4 # Updated to latest version
+        with:
+          node-version: '18' # Updated to Node.js 18 to support Vercel CLI
 
-    # Navigate to the correct directory and install dependencies
-    - name: Install dependencies
-      run: |
-        cd mern-todo-app/client
-        npm install
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          cd mern-todo-app/client
+          npm install
 
-    # Build the application
-    - name: Build the application
-      run: |
-        cd mern-todo-app/client
-        npm run build
+      # Build the application
+      - name: Build the application
+        run: |
+          cd mern-todo-app/client
+          npm run build
 
-    # Deploy to your hosting service (e.g., Vercel/Netlify)
-    - name: Deploy to Vercel
-      run: |
-        cd mern-todo-app/client
-        npx vercel --prod --yes
-      env:
-        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      # Deploy to Vercel
+      - name: Deploy to Vercel
+        run: |
+          cd mern-todo-app/client
+          npx vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}
