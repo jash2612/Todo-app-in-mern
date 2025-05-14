@@ -20,16 +20,22 @@ jobs:
       with:
         node-version: 16
 
-    # Install dependencies
+    # Navigate to the correct directory and install dependencies
     - name: Install dependencies
-      run: npm install
+      run: |
+        cd mern-todo-app/client
+        npm install
 
     # Build the application
     - name: Build the application
-      run: npm run build
+      run: |
+        cd mern-todo-app/client
+        npm run build
 
     # Deploy to your hosting service (e.g., Vercel/Netlify)
     - name: Deploy to Vercel
-      run: npx vercel --prod
+      run: |
+        cd mern-todo-app/client
+        npx vercel --prod
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
